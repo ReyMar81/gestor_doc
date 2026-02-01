@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: proyecto_sw1_db
+    environment:
+      POSTGRES_DB: traductor_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456789
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Django
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: proyecto_sw1_backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-gs%z#4)oapm$$@w6q#!*33ye(8g&7ovz4o6=u5m@nk&uu#872v9b
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - DB_NAME=traductor_db
+      - DB_USER=postgres
+      - DB_PASSWORD=123456789
+      - DB_HOST=db
+      - DB_PORT=5432
+      - GEMINI_API_KEY=AIzaSyBdXXFRvf7pKdSQMR_jzsE9FYESkDvHGs8
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  # Frontend React + Vite
+  frontend:
+    build:
+      context: ./frontend-gestion
+      dockerfile: Dockerfile
+    container_name: proyecto_sw1_frontend
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./frontend-gestion:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+
+networks:
+  app_network:
+    driver: bridge

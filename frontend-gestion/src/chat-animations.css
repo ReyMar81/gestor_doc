@@ -1,0 +1,145 @@
+/* Animación de pulsación para el botón de micrófono */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+    transform: scale(1);
+  }
+}
+
+/* Animación de puntos para "escribiendo..." */
+.typing-dots {
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.typing-dots::before {
+  content: '.';
+  animation: blink 1.4s infinite both;
+}
+
+.typing-dots::after {
+  content: '..';
+  animation: blink 1.4s 0.2s infinite both;
+}
+
+@keyframes blink {
+  0%, 20%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Efecto de entrada suave para mensajes */
+@keyframes slideInMessage {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para el indicador de conexión */
+@keyframes pulse-indicator {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 139, 34, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(34, 139, 34, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 139, 34, 0);
+  }
+}
+
+/* Transición suave para minimizar/maximizar */
+.chat-window {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efecto hover en mensajes */
+.message-box {
+  transition: transform 0.2s ease;
+}
+
+.message-box:hover {
+  transform: scale(1.02);
+}
+
+/* Badge de contador con animación */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.unread-badge {
+  animation: bounce-in 0.3s ease;
+}
+
+/* Estilo para la barra de scroll personalizada */
+.chat-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-scroll-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.chat-scroll-area::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.chat-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Efecto de resplandor para notificaciones */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
+  }
+}
+
+.notification-glow {
+  animation: glow 2s infinite;
+}
+
+/* Transición para estados de carga */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
