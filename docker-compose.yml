@@ -37,16 +37,8 @@ services:
       - media_volume:/app/media
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=True
-      - SECRET_KEY=django-insecure-gs%z#4)oapm$$@w6q#!*33ye(8g&7ovz4o6=u5m@nk&uu#872v9b
-      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
-      - DB_NAME=traductor_db
-      - DB_USER=postgres
-      - DB_PASSWORD=123456789
-      - DB_HOST=db
-      - DB_PORT=5432
-      - GEMINI_API_KEY=AIzaSyBdXXFRvf7pKdSQMR_jzsE9FYESkDvHGs8
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
@@ -66,7 +58,8 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:8000/api
+      - VITE_API_URL=/api
+      - VITE_WS_URL=
     depends_on:
       - backend
     networks:

@@ -32,6 +32,7 @@ from reportlab.lib.units import inch
 from .gemini_service import GeminiAssistant
 from rest_framework.decorators import api_view, permission_classes
 from django.utils import timezone
+from django.conf import settings
 
 
 def test_endpoint(request):
@@ -103,8 +104,22 @@ class CustomVerifyEmailView(VerifyEmailView):
     def get(self, request, key, *args, **kwargs):
         self.kwargs['key'] = key
         
-        frontend_url_success = 'http://localhost:5173/verify-email?success=true'
-        frontend_url_failure = 'http://localhost:5173/verify-email?success=false'
+        # Obtener la URL base del frontend desde el Origin
+        origin = request.headers.get('Origin', '')
+        if not origin:
+            referer = request.headers.get('Referer', '')
+            if referer:
+                # Extraer solo el origen (protocolo + host)
+                from urllib.parse import urlparse
+                parsed = urlparse(referer)
+                origin = f"{parsed.scheme}://{parsed.netloc}"
+        
+        # Si no hay origin, usar configuración
+        if not origin:
+            origin = settings.FRONTEND_URL if settings.FRONTEND_URL else 'http://localhost:5173'
+        
+        frontend_url_success = f'{origin}/verify-email?success=true'
+        frontend_url_failure = f'{origin}/verify-email?success=false'
 
         try:
             confirmation = self.get_object()
@@ -434,13 +449,27 @@ class CustomRegisterView(RegisterView):
                 ).order_by('-created').first()
                 
                 if confirmation:
-                    # Construir la URL
+                    # Obtener la URL base del frontend desde el Origin
+                    origin = request.headers.get('Origin', '')
+                    if not origin:
+                        referer = request.headers.get('Referer', '')
+                        if referer:
+                            # Extraer solo el origen (protocolo + host)
+                            from urllib.parse import urlparse
+                            parsed = urlparse(referer)
+                            origin = f"{parsed.scheme}://{parsed.netloc}"
+                    
+                    # Si no hay origin, usar configuración o construir desde request
+                    if not origin:
+                        origin = settings.FRONTEND_URL if settings.FRONTEND_URL else request.build_absolute_uri('/').rstrip('/')
+                    
+                    # Construir la URL completa con el path del backend
                     verification_path = reverse('account_confirm_email', kwargs={'key': confirmation.key})
-                    verification_url = request.build_absolute_uri(verification_path)
+                    verification_url = f"{origin}{verification_path}"
                     
                     # Enviarla al frontend
                     response.data['verification_url'] = verification_url
-                    print(f"✅ URL de verificación generada para Frontend: {verification_url}")
+                    print(f"✅ URL de verificación generada: {verification_url}")
                     
             except Exception as e:
                 print(f"⚠️ Error generando URL automática: {e}")
