@@ -17,7 +17,7 @@ genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 class GeminiAssistant:
     def __init__(self, user):
         self.user = user
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
     
     def process_command(self, prompt):
         """
